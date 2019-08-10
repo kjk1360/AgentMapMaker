@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-public class GameMap : MonoBehaviour {
+[Serializable]
+public class GameMap {
 
     public enum TileType { None, 던전, 설원, 숲, 농촌, 사막, 죽음의땅, 용암 }
     public enum GameType { None, 시간제, 몰살, 중간보스, 보스 }

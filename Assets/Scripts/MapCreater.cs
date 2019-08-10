@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 /*
 public class GameMap
 {
@@ -36,7 +38,6 @@ public class MapCreater : MonoBehaviour
     static public string THIRD_WARNING_TEXT = "모든 맵 설정을 완료하십시오";
 
 
-
     private int currentIndex;
     private int MAX_INDEX = 5;
     private bool IsWarning;
@@ -46,12 +47,14 @@ public class MapCreater : MonoBehaviour
     public GameObject warninInfo;
     public GameObject resetWarningBtn;
 
+    //btns
     public GameObject MapListBtn;
     public GameObject ResetBtn;
     public GameObject ReturnBtn;
     public GameObject TileSetBtn;
     public GameObject CompeleteBtn;
-    
+    public GameObject TileCompeleteBtn;
+
     public Text PageNameText;
 
     public GameObject firstPage;
@@ -65,6 +68,7 @@ public class MapCreater : MonoBehaviour
     private string MapName;
     private int MapLength;
     public int MapRank;
+    public TotalMap.Rank TotalMapRank;
 
     public List<GameMap> gameMaps;
     public int gameMapsIndex;
@@ -81,8 +85,34 @@ public class MapCreater : MonoBehaviour
     public InputField mapXField;
     public InputField mapYField;
 
+    public List<TileScript> SelectTileScripts;
+
     //map second page
-    public ControllTile secondTileScript; 
+    public ControllTile secondTileScript;
+
+    public Sprite tile_just_middle;
+    public Sprite tile_right_up;
+    public Sprite tile_left_up;
+    public Sprite tile_right_down;
+    public Sprite tile_left_down;
+    public Sprite tile_just_up;
+    public Sprite tile_just_down;
+    public Sprite tile_just_left;
+    public Sprite tile_just_right;
+    public Sprite tile_just_normal;
+
+
+    public Sprite tile_right_down_pix;
+    public Sprite tile_left_down_pix;
+    public Sprite tile_right_up_pix;
+    public Sprite tile_left_up_pix;
+    public Sprite empty;
+
+    public Dictionary<int ,Sprite> tileSpriteDic;
+
+    public GameObject shapePopup;
+    public GameObject heightPopup;
+    public GameObject ctrPopup;
 
     //toggleGroups
     public ToggleGroupEX mapGradeGroup;
@@ -94,6 +124,30 @@ public class MapCreater : MonoBehaviour
         IsWarning = true;
         CheckWarning();
         currentIndex = 0;
+        if(tileSpriteDic == null)
+        {
+            tileSpriteDic = new Dictionary<int, Sprite>();
+        }
+        tileSpriteDic.Clear();
+        tileSpriteDic.Add(0, tile_just_normal);
+        tileSpriteDic.Add(1, tile_right_up);
+        tileSpriteDic.Add(2, tile_left_up);
+        tileSpriteDic.Add(3, tile_right_down);
+        tileSpriteDic.Add(4, tile_left_down);
+        tileSpriteDic.Add(5, tile_just_up);
+        tileSpriteDic.Add(6, tile_just_down);
+        tileSpriteDic.Add(7, tile_just_left);
+        tileSpriteDic.Add(8, tile_just_right);
+        tileSpriteDic.Add(9, tile_just_middle);
+        tileSpriteDic.Add(10, tile_right_down_pix);
+        tileSpriteDic.Add(11, tile_left_down_pix);
+        tileSpriteDic.Add(12, tile_right_up_pix);
+        tileSpriteDic.Add(13, tile_left_up_pix);
+        tileSpriteDic.Add(14, empty);
+        if (SelectTileScripts == null)
+        {
+            SelectTileScripts = new List<TileScript>();
+        }
         DoUpdate();
     }
     public void CheckWarning()
@@ -162,6 +216,7 @@ public class MapCreater : MonoBehaviour
                 TileSetBtn.SetActive(false);
                 ResetBtn.SetActive(false);
                 CompeleteBtn.SetActive(false);
+                TileCompeleteBtn.SetActive(false);
                 break;
             case 1:
                 PageNameText.text = MapName;
@@ -178,6 +233,7 @@ public class MapCreater : MonoBehaviour
                     ReturnBtn.SetActive(false);
                     TileSetBtn.SetActive(false);
                     CompeleteBtn.SetActive(false);
+                    TileCompeleteBtn.SetActive(false);
                 }
                 else
                 {
@@ -186,6 +242,7 @@ public class MapCreater : MonoBehaviour
                     ReturnBtn.SetActive(false);
                     TileSetBtn.SetActive(false);
                     CompeleteBtn.SetActive(true);
+                    TileCompeleteBtn.SetActive(false);
                 }
                 
 
@@ -203,6 +260,7 @@ public class MapCreater : MonoBehaviour
                 ReturnBtn.SetActive(true);
                 TileSetBtn.SetActive(true);
                 CompeleteBtn.SetActive(false);
+                TileCompeleteBtn.SetActive(false);
                 break;
 
             case 3:
@@ -214,9 +272,10 @@ public class MapCreater : MonoBehaviour
 
                 MapListBtn.SetActive(false);
                 ResetBtn.SetActive(false);
-                ReturnBtn.SetActive(true);
-                TileSetBtn.SetActive(true);
+                ReturnBtn.SetActive(false);
+                TileSetBtn.SetActive(false);
                 CompeleteBtn.SetActive(false);
+                TileCompeleteBtn.SetActive(true);
                 break;
         }
 
@@ -267,6 +326,7 @@ public class MapCreater : MonoBehaviour
     {
         MapRank = key;
 
+        TotalMapRank = (TotalMap.Rank)Enum.ToObject(typeof(TotalMap.Rank), key);
         CheckWarning();
     }
     public void GetMapTileType(ToggleEX key)
@@ -360,7 +420,7 @@ public class MapCreater : MonoBehaviour
         mapGradeGroup.SetAllIndexOff();
         mapTypeGroup.SetAllIndexOff();
         mapBGGroup.SetAllIndexOff();
-
+        SelectTileScripts.Clear();
         if (currentIndex != 0)
         {
             currentIndex = 0;
@@ -413,6 +473,7 @@ public class MapCreater : MonoBehaviour
     }
     public void ReturnMapList()
     {
+        SelectTileScripts.Clear();
         for (int i = 0; i < MapLength; i++)
         {
             MapBtns[i].SetTag();
@@ -470,28 +531,113 @@ public class MapCreater : MonoBehaviour
         }
         else
         {
-
-            secondTileScript.SetUpTiles(target);
-
-
+            SelectTileScripts.Clear();
+            secondTileScript.SetUpTiles(target, this);
+            
             currentIndex = 3;
             DoUpdate();
         }
     }
 
 
+    public void CompeleteMapMake()
+    {
+        secondTileScript.CompeleteMapMake();
+
+
+        ReturnMapList();
+    }
+
+
+    public void CompeleteTotalMap()
+    {
+        TotalMap totalMap = new TotalMap("map_test", MapName, gameMaps, MapLength, TotalMapRank);
+
+        BinarySave<TotalMap>(totalMap, Application.dataPath + "/map_test.bin");
+    }
+
+    public void testLoadMap()
+    {
+        if (System.IO.File.Exists(Application.dataPath + "/map_test.bin"))
+        {
+            TotalMap testmap = BinaryLoad<TotalMap>(Application.dataPath + "/map_test.bin");
+            Debug.Log(testmap.gameMapList.Count);
+        }
+    }
 
 
 
 
+    //mapBtnScript
+    public Sprite GetTileSprite(int index)
+    {
+        return tileSpriteDic[index];
+    }
 
 
-
-
-
-
-
-
+    public void TileBtnsClicked(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                if(SelectTileScripts.Count > 0)
+                shapePopup.SetActive(true);
+                break;
+            case 1:
+                if (SelectTileScripts.Count > 0)
+                    heightPopup.SetActive(true);
+                break;
+            case 2:
+                if (SelectTileScripts.Count > 0)
+                    ctrPopup.SetActive(true);
+                break;
+            case 3:
+                SelectAllTiles();
+                break;
+            case 4:
+                UnSelectAllTiles();
+                break;
+        }
+    }
+    public void CloseTilePopup(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                shapePopup.SetActive(false);
+                break;
+            case 1:
+                heightPopup.SetActive(false);
+                break;
+            case 2:
+                ctrPopup.SetActive(false);
+                break;
+        }
+    }
+    public void SelectAllTiles()
+    {
+        secondTileScript.SelectAll();
+    }
+    public void UnSelectAllTiles()
+    {
+        secondTileScript.UnSelectAll();
+    }
+    public void ChangeShapeTiles(int index)
+    {
+        for(int i = 0; i < SelectTileScripts.Count; i++)
+        {
+            SelectTileScripts[i].ChangeShape(index);
+        }
+        CloseTilePopup(0);
+    }
+    public void ChangeHeightTiles(int index)
+    {
+        for (int i = 0; i < SelectTileScripts.Count; i++)
+        {
+            SelectTileScripts[i].ChangeHeight(index);
+        }
+        CloseTilePopup(1);
+    }
 
 
 
@@ -532,4 +678,28 @@ public class MapCreater : MonoBehaviour
 
 
     }
+
+
+
+
+
+    //final save load
+    public void BinarySave<T>(T t, string filePath)
+    {
+        BinaryFormatter formatter = new BinaryFormatter();
+        FileStream stream = new FileStream(filePath, FileMode.Create);
+        formatter.Serialize(stream, t);
+        stream.Close();
+    }
+
+    public T BinaryLoad<T>(string filePath)
+    {
+        BinaryFormatter formatter = new BinaryFormatter();
+        FileStream stream = new FileStream(filePath, FileMode.Open);
+        T t = (T)formatter.Deserialize(stream);
+        stream.Close();
+
+        return t;
+    }
+
 }
