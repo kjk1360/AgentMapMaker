@@ -87,6 +87,31 @@ public class MapCreater : MonoBehaviour
 
     public List<TileScript> SelectTileScripts;
 
+    //map_wave
+    public GameObject WavePopup;
+
+    public ToggleEX isWaveToggle;
+    public InputField waveTimeField;
+    public InputField waveLimitField;
+    public InputField waveMaxField;
+    
+    public InputField firstMonster;
+    public InputField secondMonster;
+    public InputField thirdMonster;
+    public InputField forthMonster;
+    public InputField fiveMonster;
+
+    //map_boss
+    public GameObject BossPopup;
+
+    public ToggleEX isBossToggle;
+    
+    public InputField firstBoss;
+    public InputField secondBoss;
+    public InputField thirdBoss;
+    public InputField forthBoss;
+    public InputField fiveBoss;
+
     //map second page
     public ControllTile secondTileScript;
 
@@ -119,12 +144,15 @@ public class MapCreater : MonoBehaviour
     public ToggleGroupEX mapBGGroup;
     public ToggleGroupEX mapTypeGroup;
 
+    //util
+
     private void Awake()
     {
         IsWarning = true;
         CheckWarning();
         currentIndex = 0;
-        if(tileSpriteDic == null)
+
+        if (tileSpriteDic == null)
         {
             tileSpriteDic = new Dictionary<int, Sprite>();
         }
@@ -369,6 +397,7 @@ public class MapCreater : MonoBehaviour
 
         CheckWarning();
     }
+
     public void GetMapType(ToggleEX key)
     {
         if (key.IsEnable)
@@ -378,22 +407,19 @@ public class MapCreater : MonoBehaviour
                 switch (key.GetToggleKey())
                 {
                     case 0:
-                        target.type = GameMap.GameType.시간제;
+                        target.type = GameMap.GameType.Normal;
                         break;
                     case 1:
-                        target.type = GameMap.GameType.몰살;
+                        target.type = GameMap.GameType.Hidden;
                         break;
                     case 2:
-                        target.type = GameMap.GameType.중간보스;
-                        break;
-                    case 3:
-                        target.type = GameMap.GameType.보스;
+                        target.type = GameMap.GameType.Final;
                         break;
                 }
             }
             else
             {
-                target.type = GameMap.GameType.None;
+                target.type = GameMap.GameType.Normal;
             }
         }
 
@@ -401,6 +427,165 @@ public class MapCreater : MonoBehaviour
         CheckWarning();
     }
 
+    public void GetWaveConfig()
+    {
+        target.isWave = isWaveToggle.isOn;
+        target.waveTime = Int32.Parse(waveTimeField.text);
+        target.monsterAcountLimit = Int32.Parse(waveLimitField.text);
+        target.maxMonsterAcount = Int32.Parse(waveMaxField.text);
+        if (target.monsterIndexList == null)
+        {
+            target.monsterIndexList = new List<int>();
+        }
+        else
+        {
+            target.monsterIndexList.Clear();
+        }
+
+        if(firstMonster.text != null && firstMonster.text != "")
+        {
+            target.monsterIndexList.Add(Int32.Parse(firstMonster.text));
+        }
+        if (secondMonster.text != null && secondMonster.text != "")
+        {
+            target.monsterIndexList.Add(Int32.Parse(secondMonster.text));
+        }
+        if (thirdMonster.text != null && thirdMonster.text != "")
+        {
+            target.monsterIndexList.Add(Int32.Parse(thirdMonster.text));
+        }
+        if (forthMonster.text != null && forthMonster.text != "")
+        {
+            target.monsterIndexList.Add(Int32.Parse(forthMonster.text));
+        }
+        if (fiveMonster.text != null && fiveMonster.text != "")
+        {
+            target.monsterIndexList.Add(Int32.Parse(fiveMonster.text));
+        }
+    }
+    public void SetWaveConfig()
+    {
+        isWaveToggle.isOn = target.isWave;
+        waveTimeField.text = target.waveTime.ToString();
+        waveLimitField.text = target.monsterAcountLimit.ToString();
+        waveMaxField.text = target.monsterAcountLimit.ToString();
+        if (target.monsterIndexList == null)
+        {
+            target.monsterIndexList = new List<int>();
+        }
+        if(target.monsterIndexList.Count > 0)
+        {
+            for(int i = 0; i < target.monsterIndexList.Count; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        firstMonster.text = target.monsterIndexList[i].ToString();
+                        break;
+                    case 1:
+                        secondMonster.text = target.monsterIndexList[i].ToString();
+                        break;
+                    case 2:
+                        thirdMonster.text = target.monsterIndexList[i].ToString();
+                        break;
+                    case 3:
+                        forthMonster.text = target.monsterIndexList[i].ToString();
+                        break;
+                    case 4:
+                        fiveMonster.text = target.monsterIndexList[i].ToString();
+                        break;
+                }
+            }
+        }
+    }
+
+    public void GetBossConfig()
+    {
+        target.isBoss = isBossToggle.isOn;
+        if (target.bossIndexList == null)
+        {
+            target.bossIndexList = new List<int>();
+        }
+        else
+        {
+            target.bossIndexList.Clear();
+        }
+
+        if (firstBoss.text != null && firstBoss.text != "")
+        {
+            target.bossIndexList.Add(Int32.Parse(firstBoss.text));
+        }
+        if (secondBoss.text != null && secondBoss.text != "")
+        {
+            target.bossIndexList.Add(Int32.Parse(secondBoss.text));
+        }
+        if (thirdBoss.text != null && thirdBoss.text != "")
+        {
+            target.bossIndexList.Add(Int32.Parse(thirdBoss.text));
+        }
+        if (forthBoss.text != null && forthBoss.text != "")
+        {
+            target.bossIndexList.Add(Int32.Parse(forthBoss.text));
+        }
+        if (fiveBoss.text != null && fiveBoss.text != "")
+        {
+            target.bossIndexList.Add(Int32.Parse(fiveBoss.text));
+        }
+    }
+    public void SetBossConfig()
+    {
+        isBossToggle.isOn = target.isBoss;
+        if (target.bossIndexList == null)
+        {
+            target.bossIndexList = new List<int>();
+        }
+        if (target.bossIndexList.Count > 0)
+        {
+            for (int i = 0; i < target.bossIndexList.Count; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        firstBoss.text = target.bossIndexList[i].ToString();
+                        break;
+                    case 1:
+                        secondBoss.text = target.bossIndexList[i].ToString();
+                        break;
+                    case 2:
+                        thirdBoss.text = target.bossIndexList[i].ToString();
+                        break;
+                    case 3:
+                        forthBoss.text = target.bossIndexList[i].ToString();
+                        break;
+                    case 4:
+                        fiveBoss.text = target.bossIndexList[i].ToString();
+                        break;
+                }
+            }
+        }
+    }
+
+    public void OpenWavePopup()
+    {
+        WavePopup.SetActive(true);
+        SetWaveConfig();
+    }
+    public void OpenBossPopup()
+    {
+        BossPopup.SetActive(true);
+        SetBossConfig();
+    }
+    public void CloseWavePopup()
+    {
+        GetWaveConfig();
+        WavePopup.SetActive(false);
+    }
+    public void CloseBossPopup()
+    {
+        GetBossConfig();
+        BossPopup.SetActive(false);
+    }
+    
     //BtnsScript
     public void ResetMaps()
     {
@@ -493,7 +678,7 @@ public class MapCreater : MonoBehaviour
             gameMaps.Clear();
             for (int i = 0; i < MapLength; i++)
             {
-                gameMaps.Add(new GameMap(i, GameMap.TileType.None, GameMap.GameType.None, -1, -1));
+                gameMaps.Add(new GameMap(i, GameMap.TileType.None, false, null, true, null, GameMap.GameType.None, -1, -1));
             }
 
             if (MapBtns == null)
@@ -551,16 +736,19 @@ public class MapCreater : MonoBehaviour
 
     public void CompeleteTotalMap()
     {
-        TotalMap totalMap = new TotalMap("map_test", MapName, gameMaps, MapLength, TotalMapRank);
+        DirectoryInfo di = new DirectoryInfo(Application.dataPath + "/Maps");
+        FileInfo[] fis = di.GetFiles();
+        
+        TotalMap totalMap = new TotalMap((fis.Length / 2).ToString(), MapName, gameMaps, MapLength, TotalMapRank);
 
-        BinarySave<TotalMap>(totalMap, Application.dataPath + "/map_test.bin");
+        BinarySave<TotalMap>(totalMap, Application.dataPath + "/Maps/" + (fis.Length/2).ToString()+".bin");
     }
 
     public void testLoadMap()
     {
-        if (System.IO.File.Exists(Application.dataPath + "/map_test.bin"))
+        if (System.IO.File.Exists(Application.dataPath + "/Maps/0.bin"))
         {
-            TotalMap testmap = BinaryLoad<TotalMap>(Application.dataPath + "/map_test.bin");
+            TotalMap testmap = BinaryLoad<TotalMap>(Application.dataPath + "/Maps/map_test.bin");
             Debug.Log(testmap.gameMapList.Count);
         }
     }
