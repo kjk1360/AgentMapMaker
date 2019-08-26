@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class TileScript : MonoBehaviour {
-
-
+public class TileScript : MonoBehaviour, IPointerEnterHandler, IPointerDownHandler
+{
     private MapCreater m_creater;
 
 
@@ -29,7 +29,22 @@ public class TileScript : MonoBehaviour {
         isBlocked = false;
         gameObject.GetComponent<Image>().sprite = m_creater.GetTileSprite(0);
     }
-    
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (Input.GetMouseButton(0))
+        {
+            Clicked();
+        }
+    }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (Input.GetMouseButton(0))
+        {
+            Clicked();
+        }
+        
+    }
+
     public void Clicked()
     {
         if (isSelect)
