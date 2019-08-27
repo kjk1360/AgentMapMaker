@@ -34,9 +34,6 @@ public class GameMap {
         this.isBoss = isBoss;
         this.isWave = isWave;
         this.bossIndexList = bossIndexList;
-        this.waveTime = waveTime;
-        this.monsterAcountLimit = monsterAcountLimit;
-        this.maxMonsterAcount = maxMonsterAcount;
         this.monsterIndexList = monsterIndexList;
         this.type = gameType;
         this.xCount = x;
